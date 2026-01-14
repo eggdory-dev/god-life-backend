@@ -1,0 +1,192 @@
+# ============================================================================
+# God Life Backend - Git Ignore
+# ============================================================================
+
+# ============================================================================
+# Supabase
+# ============================================================================
+
+# Supabase local development
+.supabase/
+supabase/.branches/
+supabase/.temp/
+
+# Supabase secrets (NEVER commit these!)
+.env
+.env.local
+.env.*.local
+supabase/.env
+supabase/.env.local
+
+# Supabase CLI generated files
+supabase/seed.sql
+
+# ============================================================================
+# Deno (for Edge Functions)
+# ============================================================================
+
+# Deno cache
+.deno/
+deno.lock
+
+# ============================================================================
+# Node.js (if using npm for Supabase CLI)
+# ============================================================================
+
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# ============================================================================
+# IDEs and Editors
+# ============================================================================
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# ============================================================================
+# Operating System
+# ============================================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# ============================================================================
+# Logs and Databases
+# ============================================================================
+
+*.log
+logs/
+*.sql.gz
+*.sqlite
+*.sqlite3
+*.db
+
+# ============================================================================
+# Temporary and Build Files
+# ============================================================================
+
+tmp/
+temp/
+dist/
+build/
+out/
+
+# ============================================================================
+# Credentials and Secrets (IMPORTANT!)
+# ============================================================================
+
+# API Keys
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Service Account Files
+*-service-account.json
+gcp.json
+firebase-adminsdk*.json
+
+# OAuth Credentials
+oauth-credentials.json
+client_secret*.json
+
+# Apple Shared Secret
+apple-shared-secret.txt
+
+# ============================================================================
+# Testing
+# ============================================================================
+
+coverage/
+.nyc_output/
+*.coveragerc
+
+# ============================================================================
+# Backup Files
+# ============================================================================
+
+*.bak
+*.backup
+*.old
+*.orig
+
+# ============================================================================
+# Documentation Build
+# ============================================================================
+
+site/
+_site/
+.jekyll-cache/
+
+# ============================================================================
+# Ignore Claude Plans (personal development notes)
+# ============================================================================
+
+# Claude Code plans are stored in ~/.claude/plans/
+# No need to ignore here, but documenting for reference
+
+# ============================================================================
+# Project-Specific
+# ============================================================================
+
+# Test data
+test-data/
+fixtures/
+
+# Local configuration overrides
+config.local.toml
+
+# API testing collections
+*.postman_collection.json
+*.insomnia.json
+
+# Performance test results
+k6-results/
+load-test-results/
+
+# ============================================================================
+# Keep These Files
+# ============================================================================
+
+# Important: DO commit these
+# !README.md
+# !supabase/config.toml (template version)
+# !supabase/migrations/*.sql
+# !supabase/functions/**/*.ts
