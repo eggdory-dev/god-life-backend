@@ -4,8 +4,8 @@
 -- Description: Creates all core tables for the God Life planner application
 -- ============================================================================
 
--- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- Enable pgcrypto extension for gen_random_uuid()
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- ============================================================================
 -- USER MANAGEMENT
@@ -71,7 +71,7 @@ COMMENT ON COLUMN profiles.theme_mode IS 'faith = Christian themed, universal = 
 -- Routines table
 -- Stores user-created habits/routines with scheduling and streak information
 CREATE TABLE IF NOT EXISTS routines (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
 
   -- Basic information
@@ -116,7 +116,7 @@ COMMENT ON COLUMN routines.current_streak IS 'Consecutive days the routine has b
 -- Routine completions table
 -- Tracks each completion of a routine with streak information
 CREATE TABLE IF NOT EXISTS routine_completions (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   routine_id UUID NOT NULL REFERENCES routines(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
 
@@ -151,7 +151,7 @@ COMMENT ON COLUMN routine_completions.streak_at_completion IS 'Streak value at t
 -- Coaching conversations table
 -- Stores conversation sessions between user and AI coach
 CREATE TABLE IF NOT EXISTS coaching_conversations (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
 
   title TEXT NOT NULL DEFAULT '새로운 상담',
@@ -173,7 +173,7 @@ COMMENT ON TABLE coaching_conversations IS 'AI coaching conversation sessions';
 -- Coaching messages table
 -- Stores individual messages in conversations (user and assistant)
 CREATE TABLE IF NOT EXISTS coaching_messages (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   conversation_id UUID NOT NULL REFERENCES coaching_conversations(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
 
@@ -200,7 +200,7 @@ COMMENT ON COLUMN coaching_messages.role IS 'user = human message, assistant = A
 -- Coaching reports table
 -- Stores generated coaching reports with diagnosis and recommendations
 CREATE TABLE IF NOT EXISTS coaching_reports (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   conversation_id UUID NOT NULL REFERENCES coaching_conversations(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
 
@@ -229,7 +229,7 @@ COMMENT ON TABLE coaching_reports IS 'AI-generated coaching reports with recomme
 -- AI usage tracking table
 -- Tracks AI usage for rate limiting (daily for free, monthly for pro)
 CREATE TABLE IF NOT EXISTS ai_usage_tracking (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
 
   usage_date DATE NOT NULL,
@@ -255,7 +255,7 @@ COMMENT ON TABLE ai_usage_tracking IS 'Tracks AI usage for rate limiting';
 -- Groups table
 -- Small accountability groups for habit tracking
 CREATE TABLE IF NOT EXISTS groups (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   owner_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
 
   name TEXT NOT NULL CHECK (length(name) >= 1 AND length(name) <= 100),
@@ -280,7 +280,7 @@ COMMENT ON TABLE groups IS 'Small accountability groups (2-30 members)';
 -- Group members table
 -- Tracks membership in groups
 CREATE TABLE IF NOT EXISTS group_members (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   group_id UUID NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
 
@@ -302,7 +302,7 @@ COMMENT ON TABLE group_members IS 'Group membership relationships';
 -- Group invites table
 -- Temporary invite codes for joining groups
 CREATE TABLE IF NOT EXISTS group_invites (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   group_id UUID NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
   created_by UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
 
@@ -313,7 +313,7 @@ CREATE TABLE IF NOT EXISTS group_invites (
 );
 
 -- Indexes for group_invites
-CREATE INDEX idx_invites_code ON group_invites(invite_code) WHERE expires_at > NOW();
+CREATE INDEX idx_invites_code ON group_invites(invite_code);
 CREATE INDEX idx_invites_group ON group_invites(group_id);
 CREATE INDEX idx_invites_expires ON group_invites(expires_at DESC);
 
@@ -324,7 +324,7 @@ COMMENT ON TABLE group_invites IS 'Temporary invite codes for groups (6 chars, 7
 -- Group cheers table
 -- Encouragement messages between group members
 CREATE TABLE IF NOT EXISTS group_cheers (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   group_id UUID NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
   from_user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   to_user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
@@ -354,7 +354,7 @@ COMMENT ON TABLE group_cheers IS 'Encouragement messages between group members';
 -- Challenges table
 -- Time-bound challenges for users to join
 CREATE TABLE IF NOT EXISTS challenges (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
   title TEXT NOT NULL CHECK (length(title) >= 1 AND length(title) <= 200),
   description TEXT NOT NULL,
@@ -385,7 +385,7 @@ COMMENT ON TABLE challenges IS 'Time-bound challenges (e.g., 21-day gratitude ch
 -- Challenge participants table
 -- Tracks user participation in challenges
 CREATE TABLE IF NOT EXISTS challenge_participants (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   challenge_id UUID NOT NULL REFERENCES challenges(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
 
@@ -409,7 +409,7 @@ COMMENT ON TABLE challenge_participants IS 'User participation in challenges';
 -- Challenge verifications table
 -- Daily check-ins/verifications for challenge completion
 CREATE TABLE IF NOT EXISTS challenge_verifications (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   challenge_id UUID NOT NULL REFERENCES challenges(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
 
@@ -437,7 +437,7 @@ COMMENT ON TABLE challenge_verifications IS 'Daily check-ins for challenge compl
 -- Notifications table
 -- In-app notifications for users
 CREATE TABLE IF NOT EXISTS notifications (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
 
   type TEXT NOT NULL CHECK (type IN ('routine_reminder', 'group_cheer', 'challenge_update', 'achievement', 'system')),
@@ -462,7 +462,7 @@ COMMENT ON TABLE notifications IS 'In-app notifications for users';
 -- Push tokens table
 -- FCM push notification tokens for devices
 CREATE TABLE IF NOT EXISTS push_tokens (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
 
   token TEXT NOT NULL,
@@ -492,7 +492,7 @@ COMMENT ON TABLE push_tokens IS 'Firebase Cloud Messaging tokens for push notifi
 -- Insights table
 -- Daily inspirational content (faith-based verses or universal quotes)
 CREATE TABLE IF NOT EXISTS insights (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
   type TEXT NOT NULL CHECK (type IN ('verse', 'quote')),
   content TEXT NOT NULL CHECK (length(content) >= 1 AND length(content) <= 1000),
